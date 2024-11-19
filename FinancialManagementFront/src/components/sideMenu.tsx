@@ -1,26 +1,38 @@
-"use client";
-
-import { Button, Typography, Drawer, List, ListItemButton, ListItemText, IconButton } from "@mui/material";
+import React, { useState, useEffect } from 'react';
+import { Typography, Drawer, List, ListItemButton, ListItemText, IconButton, ListItemIcon } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Link from "next/link";
-import { useState } from "react";
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import ExpenseIcon from '@mui/icons-material/RemoveCircleOutline';
+import LogoutIcon from '@mui/icons-material/Logout';
+import Link from 'next/link';
 
-const SideMenu = () => {
+interface SideMenuProps {
+    children: React.ReactNode;
+}
+
+const SideMenu: React.FC<SideMenuProps> = ({ children }) => {
     const [open, setOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Estado de login do usuário
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        setIsLoggedIn(!!token);
+    }, []);
 
     const toggleDrawer = (open: boolean) => {
         setOpen(open);
     };
 
     const handleLogout = () => {
-        setIsLoggedIn(false); // Simula o logout, você pode adicionar a lógica de logout aqui
+        localStorage.removeItem('token');
+        setIsLoggedIn(false);
     };
 
     return (
         <div>
+            {/* Header do Menu */}
             <header className="flex justify-between items-center px-6 py-4 shadow-sm bg-white">
-                {/* Botão de menu à esquerda */}
                 <IconButton onClick={() => toggleDrawer(true)} edge="start" color="primary">
                     <MenuIcon />
                 </IconButton>
@@ -30,54 +42,116 @@ const SideMenu = () => {
                         FinancEase
                     </Typography>
                 </Link>
-
-                <nav className="space-x-4">
-                    {!isLoggedIn ? (
-                        <>
-                            <Button variant="text" color="primary">
-                                Soluções
-                            </Button>
-                            <Link href="#sobre" passHref>
-                                <Button variant="text" color="primary">
-                                    Sobre
-                                </Button>
-                            </Link>
-                            <Button variant="contained" color="primary" href="/pages/login">
-                                Login
-                            </Button>
-                        </>
-                    ) : (
-                        <Button variant="contained" color="primary" onClick={handleLogout}>
-                            Logout
-                        </Button>
-                    )}
-                </nav>
             </header>
 
-            <Drawer anchor="left" open={open} onClose={() => toggleDrawer(false)}>
+            {/* Sidebar Drawer */}
+            <Drawer
+                anchor="left"
+                open={open}
+                onClose={() => toggleDrawer(false)}
+                variant="temporary"
+                sx={{
+                    width: 240,
+                    flexShrink: 0,
+                    '& .MuiDrawer-paper': {
+                        width: 240,
+                        height: '100vh',
+                        boxSizing: 'border-box',
+                        backgroundColor: '#fff',
+                        boxShadow: '4px 0px 10px rgba(0, 0, 0, 0.2)', // Corrigido o sombreado para ser mais visível
+                    },
+                }}
+            >
                 <div className="w-64 p-4">
-                    <Typography variant="h5" color="primary" className="font-bold mb-4">
-                        FinancEase
-                    </Typography>
+                    <div className="flex justify-center mb-6">
+                        <Typography variant="h5" color="primary" className="font-bold text-center">
+                            FinancEase
+                        </Typography>
+                    </div>
 
                     <List>
-                        <ListItemButton component="a" href="/receitas">
+                        <ListItemButton
+                            component="a"
+                            href="/pages/home"
+                            sx={{
+                                marginBottom: '8px', // Espaçamento entre itens
+                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Sombreamento inicial nos itens
+                                borderRadius: '8px',
+                                '&:hover': {
+                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Sombreamento mais forte ao passar o mouse
+                                    transform: 'scale(1.02)', // Leve efeito de zoom
+                                },
+                            }}
+                        >
+                            <ListItemIcon>
+                                <AnalyticsIcon color="primary" />
+                            </ListItemIcon>
+                            <ListItemText primary="Home" />
+                        </ListItemButton>
+
+                        <ListItemButton
+                            component="a"
+                            href="/pages/revenue"
+                            sx={{
+                                marginBottom: '8px',
+                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                                borderRadius: '8px',
+                                '&:hover': {
+                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                    transform: 'scale(1.02)',
+                                },
+                            }}
+                        >
+                            <ListItemIcon>
+                                <MonetizationOnIcon color="primary" />
+                            </ListItemIcon>
                             <ListItemText primary="Receitas" />
                         </ListItemButton>
-                        <ListItemButton component="a" href="/despesas">
+
+                        <ListItemButton
+                            component="a"
+                            href="/pages/expense"
+                            sx={{
+                                marginBottom: '8px',
+                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                                borderRadius: '8px',
+                                '&:hover': {
+                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                    transform: 'scale(1.02)',
+                                },
+                            }}
+                        >
+                            <ListItemIcon>
+                                <ExpenseIcon color="primary" />
+                            </ListItemIcon>
                             <ListItemText primary="Despesas" />
                         </ListItemButton>
-                        <ListItemButton component="a" href="/dashboard">
-                            <ListItemText primary="DashBoard" />
-                        </ListItemButton>
+
                         {isLoggedIn && (
-                            <ListItemButton component="a" onClick={handleLogout}>
-                                <ListItemText primary="Logout" />
+                            <ListItemButton
+                                onClick={handleLogout}
+                                sx={{
+                                    marginBottom: '8px',
+                                    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                                    borderRadius: '8px',
+                                    '&:hover': {
+                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                        transform: 'scale(1.02)',
+                                    },
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <LogoutIcon color="error" />
+                                </ListItemIcon>
+                                <ListItemText primary="Sair" />
                             </ListItemButton>
                         )}
                     </List>
                 </div>
             </Drawer>
+
+            {/* Área para exibir o conteúdo */}
+            <main>{children}</main>
         </div>
     );
 };

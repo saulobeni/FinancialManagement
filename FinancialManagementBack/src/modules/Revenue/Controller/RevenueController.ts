@@ -8,11 +8,25 @@ export class RevenueController {
 
     async create(req: Request, res: Response) {
         try {
-            const revenueData = req.body;
-            const newRevenue = await service.create(revenueData);
+            const user_id = req.user.id;
+            const { cost, recurrence_date, ...revenueData } = req.body;
+
+            const revenueWithDecimal = {
+                ...revenueData,
+                user_id,
+                cost: new Prisma.Decimal(cost),
+                date: new Date(req.body.date),
+            };
+
+            if (recurrence_date) {
+                revenueWithDecimal.recurrence_date = new Date(recurrence_date);
+            }
+
+            const newRevenue = await service.create(revenueWithDecimal);
             res.status(201).json(newRevenue);
         } catch (error) {
-            const typedError = error as Prisma.PrismaClientKnownRequestError;
+            console.error(error);  // Log completo para depuração
+            const typedError = error as Prisma.PrismaClientValidationError;
             res.status(500).json({ message: "Erro ao criar receita!", error: typedError });
         }
     }
@@ -29,11 +43,23 @@ export class RevenueController {
 
     async update(req: Request, res: Response) {
         try {
-            const revenueData = req.body;
             const revenueId = parseInt(req.params.id);
-            const updatedRevenue = await service.update(revenueId, revenueData);
-            res.status(200).send(updatedRevenue);
+            const { cost, recurrence_date, ...revenueData } = req.body;
+
+            const revenueWithDecimal = {
+                ...revenueData,
+                cost: cost ? new Prisma.Decimal(cost) : undefined,
+                date: new Date(revenueData.date),
+            };
+
+            if (recurrence_date) {
+                revenueWithDecimal.recurrence_date = new Date(recurrence_date);
+            }
+
+            const updatedRevenue = await service.update(revenueId, revenueWithDecimal);
+            res.status(200).json(updatedRevenue);
         } catch (error) {
+            console.error(error);  // Log completo para depuração
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao atualizar receita!", error: typedError });
         }
