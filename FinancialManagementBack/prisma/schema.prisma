@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Expense {
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(100)
+  cost            Decimal   @db.Decimal(10, 2)
+  date            DateTime  @db.Date
+  is_recurring    Boolean?  @default(false)
+  recurrence_date DateTime? @db.Date
+  user_id         Int
+  User            User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Revenue {
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(100)
+  cost            Decimal   @db.Decimal(10, 2)
+  date            DateTime  @db.Date
+  is_recurring    Boolean?  @default(false)
+  recurrence_date DateTime? @db.Date
+  user_id         Int
+  User            User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  username String    @db.VarChar(50)
+  email    String    @unique @db.VarChar(100)
+  password String    @db.VarChar(255)
+  name     String    @db.VarChar(100)
+  Expense  Expense[]
+  Revenue  Revenue[]
+}

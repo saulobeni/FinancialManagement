@@ -1,0 +1,35 @@
+{
+  "name": "financialmanagement",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "pull": "rm -r ./prisma && npx prisma init && npx prisma db pull",
+    "dev": "npx prisma generate && npx tsx watch src/server.ts",
+    "prisma": "npx prisma init && npx prisma db pull",
+    "lint": "npx eslint \"src/**/*.{ts,tsx}\"",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/node": "^22.9.0",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
+    "prisma": "^5.22.0",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.14.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "@types/express": "^5.0.0",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
