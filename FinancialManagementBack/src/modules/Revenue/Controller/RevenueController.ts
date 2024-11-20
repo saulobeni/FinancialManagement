@@ -8,12 +8,12 @@ export class RevenueController {
 
     async create(req: Request, res: Response) {
         try {
-            const user_id = req.user.id;
+            const userId = req.user.id;
             const { cost, recurrence_date, ...revenueData } = req.body;
 
             const revenueWithDecimal = {
                 ...revenueData,
-                user_id,
+                user_id: userId,
                 cost: new Prisma.Decimal(cost),
                 date: new Date(req.body.date),
             };
