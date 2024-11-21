@@ -25,7 +25,7 @@ export class RevenueController {
             const newRevenue = await service.create(revenueWithDecimal);
             res.status(201).json(newRevenue);
         } catch (error) {
-            console.error(error);  // Log completo para depuração
+            console.error(error); 
             const typedError = error as Prisma.PrismaClientValidationError;
             res.status(500).json({ message: "Erro ao criar receita!", error: typedError });
         }
@@ -59,7 +59,7 @@ export class RevenueController {
             const updatedRevenue = await service.update(revenueId, revenueWithDecimal);
             res.status(200).json(updatedRevenue);
         } catch (error) {
-            console.error(error);  // Log completo para depuração
+            console.error(error);  
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao atualizar receita!", error: typedError });
         }

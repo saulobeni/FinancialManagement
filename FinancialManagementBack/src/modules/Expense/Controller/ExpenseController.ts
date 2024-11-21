@@ -8,14 +8,29 @@ export class ExpenseController {
 
     async create(req: Request, res: Response) {
         try {
-            const expenseData = req.body;
-            const newExpense = await service.create(expenseData);
+            const userId = req.user.id;
+            const { cost, recurrence_date, ...expenseData } = req.body;
+
+            const expenseWithDecimal = {
+                ...expenseData,
+                user_id: userId,
+                cost: new Prisma.Decimal(cost),
+                date: new Date(req.body.date),
+            };
+
+            if (recurrence_date) {
+                expenseWithDecimal.recurrence_date = new Date(recurrence_date);
+            }
+
+            const newExpense = await service.create(expenseWithDecimal);
             res.status(201).json(newExpense);
         } catch (error) {
+            console.error(error); 
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao criar despesa!", error: typedError });
         }
     }
+
 
     async getAll(req: Request, res: Response) {
         try {
@@ -29,15 +44,28 @@ export class ExpenseController {
 
     async update(req: Request, res: Response) {
         try {
-            const expenseData = req.body;
             const expenseId = parseInt(req.params.id);
-            const updatedExpense = await service.update(expenseId, expenseData);
-            res.status(200).send(updatedExpense);
+            const { cost, recurrence_date, ...expenseData } = req.body;
+
+            const expenseWithDecimal = {
+                ...expenseData,
+                cost: cost ? new Prisma.Decimal(cost) : undefined,
+                date: new Date(expenseData.date),
+            };
+
+            if (recurrence_date) {
+                expenseWithDecimal.recurrence_date = new Date(recurrence_date);
+            }
+
+            const updatedExpense = await service.update(expenseId, expenseWithDecimal);
+            res.status(200).json(updatedExpense);
         } catch (error) {
+            console.error(error); 
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao atualizar despesa!", error: typedError });
         }
     }
+
 
     async delete(req: Request, res: Response) {
         try {
