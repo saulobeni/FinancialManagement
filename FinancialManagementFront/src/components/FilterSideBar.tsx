@@ -36,7 +36,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ open, onClose, onApplyFil
     });
 
     const handleSelectChange = (e: SelectChangeEvent<string>, field: string) => {
-        const value = e.target.value === "" ? undefined : e.target.value;
+        const value = e.target.value === "Todos" || e.target.value === "" ? undefined : e.target.value;
         setFilters((prev) => ({ ...prev, [field]: value }));
     };
 
