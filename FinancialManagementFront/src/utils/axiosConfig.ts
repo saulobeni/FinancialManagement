@@ -28,24 +28,24 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     (error) => {
-
         if (error.response) {
-
-            console.log('Erro na resposta:', error);
+            if (error.response.status === 401) {
+                window.location.href = '/pages/login';
+            }
+            console.log('Erro na resposta:', error.response);
         } else if (error.request) {
-
             console.log('Erro na requisição:', error.request);
         } else {
-
             console.log('Erro', error.message);
         }
         return Promise.reject(error);
     }
 );
 
-export const poster = async (url: string, data: any, config = {}) => {
+
+export const poster = async <T>(url: string, data: T, config: AxiosRequestConfig = {}): Promise<T> => {
     try {
-        const response = await axiosInstance.post(url, data, config);
+        const response = await axiosInstance.post<T>(url, data, config);
         return response.data;
     } catch (error: unknown) {
         if (error instanceof Error) {
@@ -70,9 +70,9 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 };
 
 
-export const putter = async (url: string, data: any) => {
+export const putter = async <T>(url: string, data: T): Promise<T> => {
     try {
-        const response = await axiosInstance.put(url, data);
+        const response = await axiosInstance.put<T>(url, data);
         return response.data;
     } catch (error) {
         console.log(`Erro ao fazer PUT para ${url}:`, error);

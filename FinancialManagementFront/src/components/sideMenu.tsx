@@ -26,6 +26,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ children }) => {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
+        window.location.href = '/pages/login';
         setIsLoggedIn(false);
     };
 
