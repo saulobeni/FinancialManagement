@@ -1,5 +1,5 @@
 export interface Revenue {
-    id: number;
+    id?: number;
     name: string;
     cost: number;
     date: Date;

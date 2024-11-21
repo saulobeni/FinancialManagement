@@ -1,5 +1,6 @@
 "use client";
 
+import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { fetcher, poster, putter, deleter } from "../../../utils/axiosConfig";
 import {
@@ -22,6 +23,8 @@ import {
     IconButton,
 } from "@mui/material";
 import SideMenu from "../../../components/sideMenu";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterSidebar from "../../../components/FilterSideBar"; // Ajuste o caminho conforme necessário
 import { Revenue } from "../../types/IRevenue";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -30,10 +33,17 @@ const RevenuesPage = () => {
     const [revenues, setRevenues] = useState<Revenue[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [openModal, setOpenModal] = useState<boolean>(false);
-    const [isEditMode, setIsEditMode] = useState<boolean>(false); // Para controlar se é edição ou criação
+    const [isEditMode, setIsEditMode] = useState<boolean>(false);
+    const [originalRevenues, setOriginalRevenues] = useState<Revenue[]>([]);
 
-    // Campos do formulário
-    const [newRevenue, setNewRevenue] = useState({
+    const [newRevenue, setNewRevenue] = useState<{
+        id?: number;
+        name: string;
+        cost: string;
+        date: string;
+        is_recurring: boolean;
+        recurrence_date?: string;
+    }>({
         name: "",
         cost: "",
         date: "",
@@ -41,20 +51,70 @@ const RevenuesPage = () => {
         recurrence_date: "",
     });
 
+    const [openFilters, setOpenFilters] = useState<boolean>(false);
+    const [filters, setFilters] = useState<{
+        month?: string;
+        order?: "asc" | "desc";
+        period?: { from: string; to: string };
+    }>({});
+
     useEffect(() => {
-        const fetchRevenues = async () => {
+        const fetchData = async () => {
             try {
-                const data: Revenue[] = await fetcher("/revenue");
-                setRevenues(data);
+                setLoading(true);
+                const fetchedRevenues: Revenue[] = await fetcher("/revenue");
+                setRevenues(fetchedRevenues);
+                setOriginalRevenues(fetchedRevenues);
             } catch (error) {
-                console.error("Erro ao buscar receitas:", error);
+                console.error("Erro ao carregar receitas:", error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchRevenues();
+        fetchData();
     }, []);
+
+
+
+
+    useEffect(() => {
+        if (!filters.month && !filters.order && !filters.period) {
+            setRevenues(originalRevenues);
+            return;
+        }
+
+        let filteredRevenues = [...originalRevenues];
+
+        if (filters.month) {
+            const month = filters.month ?? '';
+            filteredRevenues = filteredRevenues.filter(
+                (revenue) => new Date(revenue.date).getMonth() + 1 === parseInt(month)
+            );
+        }
+
+        if (filters.period && filters.period.from && filters.period.to) {
+            const from = new Date(filters.period.from);
+            const to = new Date(filters.period.to);
+
+            filteredRevenues = filteredRevenues.filter((revenue) => {
+                const revenueDate = new Date(revenue.date);
+                return revenueDate >= from && revenueDate <= to;
+            });
+        }
+
+
+        if (filters.order) {
+            filteredRevenues.sort((a, b) => {
+                const comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+                return filters.order === "asc" ? comparison : -comparison;
+            });
+        }
+
+        console.log(filteredRevenues)
+
+        setRevenues(filteredRevenues);
+    }, [filters, originalRevenues]);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -70,14 +130,15 @@ const RevenuesPage = () => {
         setNewRevenue((prev) => ({
             ...prev,
             is_recurring: checked,
-            recurrence_date: checked ? prev.recurrence_date : "", // Limpa a data se não for recorrente
+            recurrence_date: checked ? prev.recurrence_date : "",
         }));
     };
+
+
 
     const handleSubmit = async () => {
         try {
             if (isEditMode) {
-                // Se for edição, chama a função putter para atualizar
                 await putter(`/revenue/${newRevenue.id}`, {
                     ...newRevenue,
                     cost: parseFloat(newRevenue.cost),
@@ -86,7 +147,6 @@ const RevenuesPage = () => {
                         : null,
                 });
             } else {
-                // Se for criação, chama a função poster para adicionar
                 await poster("/revenue", {
                     ...newRevenue,
                     cost: parseFloat(newRevenue.cost),
@@ -97,7 +157,6 @@ const RevenuesPage = () => {
             }
             setOpenModal(false);
             setLoading(true);
-            // Recarregar a lista de receitas
             const updatedRevenues: Revenue[] = await fetcher("/revenue");
             setRevenues(updatedRevenues);
         } catch (error) {
@@ -107,13 +166,36 @@ const RevenuesPage = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        try {
-            await deleter(`/revenue/${id}`);
-            setRevenues(revenues.filter((revenue) => revenue.id !== id));
-        } catch (error) {
-            console.error("Erro ao excluir receita:", error);
-        }
+    const handleDelete = async (id?: number) => {
+        Swal.fire({
+            title: "Tem certeza?",
+            text: "Você não poderá reverter esta ação!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sim, excluir!",
+            cancelButtonText: "Cancelar",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await deleter(`/revenue/${id}`);
+                    setRevenues(revenues.filter((revenue) => revenue.id !== id));
+                    Swal.fire({
+                        title: "Excluído!",
+                        text: "A receita foi excluída com sucesso.",
+                        icon: "success",
+                    });
+                } catch (error) {
+                    console.error("Erro ao excluir receita:", error);
+                    Swal.fire({
+                        title: "Erro!",
+                        text: "Houve um problema ao excluir a receita.",
+                        icon: "error",
+                    });
+                }
+            }
+        });
     };
 
     const handleEdit = (revenue: Revenue) => {
@@ -127,7 +209,7 @@ const RevenuesPage = () => {
                 ? new Date(revenue.recurrence_date).toISOString().split("T")[0]
                 : "",
         });
-        setIsEditMode(true);  // Configura o modo de edição
+        setIsEditMode(true);
         setOpenModal(true);
     };
 
@@ -139,7 +221,7 @@ const RevenuesPage = () => {
             is_recurring: false,
             recurrence_date: "",
         });
-        setIsEditMode(false);  // Configura o modo de adição
+        setIsEditMode(false);
         setOpenModal(true);
     };
 
@@ -167,12 +249,30 @@ const RevenuesPage = () => {
                         display: "flex",
                         justifyContent: "flex-end",
                         marginBottom: 2,
+                        gap: 2,
                     }}
                 >
+                    {/* Botão de filtro */}
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => setOpenFilters(true)}
+                        sx={{
+                            border: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                        }}
+                    >
+                        <FilterAltIcon />
+                        Filtrar
+                    </Button>
+
+                    {/* Botão de adicionar receita */}
                     <Button
                         variant="contained"
                         color="success"
-                        onClick={handleAddNew}  // Abre o modal de adição
+                        onClick={handleAddNew}
                     >
                         Adicionar Receita
                     </Button>
@@ -314,7 +414,7 @@ const RevenuesPage = () => {
                                             <TableCell>
                                                 <IconButton
                                                     color="primary"
-                                                    onClick={() => handleEdit(revenue)} // Abre o modal de edição
+                                                    onClick={() => handleEdit(revenue)}
                                                 >
                                                     <EditIcon />
                                                 </IconButton>
@@ -339,7 +439,16 @@ const RevenuesPage = () => {
                     </TableContainer>
                 )}
             </Box>
+            <FilterSidebar
+                open={openFilters}
+                onClose={() => setOpenFilters(false)}
+                onApplyFilters={(newFilters) => {
+                    setFilters(newFilters);  // Atualiza os filtros e recarrega as receitas
+                    setOpenFilters(false);    // Fecha o filtro
+                }}
+            />
         </SideMenu>
+
     );
 };
 

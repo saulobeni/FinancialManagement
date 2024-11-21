@@ -46,7 +46,7 @@ const Login = () => {
                 setOpenSnackbar(true);
 
                 setTimeout(() => {
-                    router.push("/pages/graphics");
+                    router.push("/pages/home");
                 }, 2000);
             }
         } catch (error: unknown) {
