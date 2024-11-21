@@ -51,14 +51,15 @@ const SideMenu: React.FC<SideMenuProps> = ({ children }) => {
                 onClose={() => toggleDrawer(false)}
                 variant="temporary"
                 sx={{
-                    width: 240,
+                    width: 260, // Aumenta o tamanho da sidebar
                     flexShrink: 0,
                     '& .MuiDrawer-paper': {
-                        width: 240,
+                        width: 260, // Aumenta o tamanho da sidebar
                         height: '100vh',
                         boxSizing: 'border-box',
                         backgroundColor: '#fff',
-                        boxShadow: '4px 0px 10px rgba(0, 0, 0, 0.2)', // Corrigido o sombreado para ser mais visível
+                        boxShadow: '4px 0px 10px rgba(0, 0, 0, 0.2)',
+                        overflow: 'hidden', // Remover a barra de rolagem
                     },
                 }}
             >
@@ -74,12 +75,12 @@ const SideMenu: React.FC<SideMenuProps> = ({ children }) => {
                             component="a"
                             href="/pages/home"
                             sx={{
-                                marginBottom: '8px', // Espaçamento entre itens
-                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Sombreamento inicial nos itens
+                                marginBottom: '12px', // Aumenta o espaçamento entre os itens
+                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                                 borderRadius: '8px',
                                 '&:hover': {
-                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Sombreamento mais forte ao passar o mouse
-                                    transform: 'scale(1.02)', // Leve efeito de zoom
+                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                    transform: 'scale(1.02)',
                                 },
                             }}
                         >
@@ -93,7 +94,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ children }) => {
                             component="a"
                             href="/pages/revenue"
                             sx={{
-                                marginBottom: '8px',
+                                marginBottom: '12px', // Aumenta o espaçamento entre os itens
                                 boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                                 borderRadius: '8px',
                                 '&:hover': {
@@ -112,7 +113,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ children }) => {
                             component="a"
                             href="/pages/expense"
                             sx={{
-                                marginBottom: '8px',
+                                marginBottom: '12px', // Aumenta o espaçamento entre os itens
                                 boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                                 borderRadius: '8px',
                                 '&:hover': {
@@ -131,7 +132,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ children }) => {
                             <ListItemButton
                                 onClick={handleLogout}
                                 sx={{
-                                    marginBottom: '8px',
+                                    marginBottom: '12px', // Aumenta o espaçamento entre os itens
                                     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                                     borderRadius: '8px',
                                     '&:hover': {
