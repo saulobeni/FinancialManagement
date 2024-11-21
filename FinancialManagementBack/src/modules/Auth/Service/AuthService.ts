@@ -16,7 +16,7 @@ export class AuthService {
       throw new Error('Usuário ou Senha Inválidos');
     }
 
-    const token = jwt.sign( { id: user.id }, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn });
+    const token = jwt.sign( { id: user.id, name: user.name }, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn });
 
     return { token };
   }
