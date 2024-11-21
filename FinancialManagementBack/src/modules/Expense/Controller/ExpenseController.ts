@@ -25,7 +25,7 @@ export class ExpenseController {
             const newExpense = await service.create(expenseWithDecimal);
             res.status(201).json(newExpense);
         } catch (error) {
-            console.error(error); 
+            console.error(error);
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao criar despesa!", error: typedError });
         }
@@ -34,13 +34,16 @@ export class ExpenseController {
 
     async getAll(req: Request, res: Response) {
         try {
-            const allExpenses = await service.findAll();
+            const { month } = req.query;
+
+            const allExpenses = await service.findAll(month ? String(month) : undefined);
             res.status(200).send(allExpenses);
         } catch (error) {
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao buscar todas as despesas!", error: typedError });
         }
     }
+
 
     async update(req: Request, res: Response) {
         try {
@@ -60,7 +63,7 @@ export class ExpenseController {
             const updatedExpense = await service.update(expenseId, expenseWithDecimal);
             res.status(200).json(updatedExpense);
         } catch (error) {
-            console.error(error); 
+            console.error(error);
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao atualizar despesa!", error: typedError });
         }

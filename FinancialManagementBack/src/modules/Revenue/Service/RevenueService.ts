@@ -9,8 +9,12 @@ export class RevenueService {
         return repository.create(data);
     }
 
-    async findAll() {
-        return repository.findAll();
+    async findAll(month?: string) {
+        if (month) {
+            return repository.findAllByMonth(month);
+        } else {
+            return repository.findAll();
+        }
     }
 
     async delete(id: number) {

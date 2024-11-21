@@ -25,21 +25,28 @@ export class RevenueController {
             const newRevenue = await service.create(revenueWithDecimal);
             res.status(201).json(newRevenue);
         } catch (error) {
-            console.error(error); 
+            console.error(error);
             const typedError = error as Prisma.PrismaClientValidationError;
             res.status(500).json({ message: "Erro ao criar receita!", error: typedError });
         }
     }
 
+    // Método no Controller
     async getAll(req: Request, res: Response) {
         try {
-            const allRevenues = await service.findAll();
+            const { month } = req.query;
+
+            // Se mês for fornecido, chama a função findAll com o mês
+            // Caso contrário, chama a função findAll sem mês (sem filtro)
+            const allRevenues = await service.findAll(month ? String(month) : undefined);
             res.status(200).send(allRevenues);
         } catch (error) {
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao buscar todas as receitas!", error: typedError });
         }
     }
+
+
 
     async update(req: Request, res: Response) {
         try {
@@ -59,7 +66,7 @@ export class RevenueController {
             const updatedRevenue = await service.update(revenueId, revenueWithDecimal);
             res.status(200).json(updatedRevenue);
         } catch (error) {
-            console.error(error);  
+            console.error(error);
             const typedError = error as Prisma.PrismaClientKnownRequestError;
             res.status(500).json({ message: "Erro ao atualizar receita!", error: typedError });
         }

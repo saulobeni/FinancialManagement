@@ -15,6 +15,21 @@ export class ExpenseRepository {
         return prisma.expense.findMany({});
     }
 
+    async findAllByMonth(month: string) {
+        const currentYear = new Date().getFullYear();
+
+        const monthNumber = Number(month);
+
+        return prisma.expense.findMany({
+            where: {
+                date: {
+                    gte: new Date(currentYear, monthNumber - 1, 1),
+                    lt: new Date(currentYear, monthNumber, 1),
+                },
+            },
+        });
+    }
+
     async update(id: number, data: IUpdateExpense) {
         return prisma.expense.update({
             where: {

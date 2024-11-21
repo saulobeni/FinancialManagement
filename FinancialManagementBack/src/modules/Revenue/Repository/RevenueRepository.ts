@@ -15,6 +15,21 @@ export class RevenueRepository {
         return prisma.revenue.findMany({});
     }
 
+    async findAllByMonth(month: string) {
+        const currentYear = new Date().getFullYear();
+
+        const monthNumber = Number(month);
+
+        return prisma.revenue.findMany({
+            where: {
+                date: {
+                    gte: new Date(currentYear, monthNumber - 1, 1),
+                    lt: new Date(currentYear, monthNumber, 1),
+                },
+            },
+        });
+    }
+
     async update(id: number, data: IUpdateRevenue) {
         return prisma.revenue.update({
             where: {
