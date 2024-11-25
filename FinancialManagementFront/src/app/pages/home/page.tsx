@@ -1,5 +1,5 @@
 "use client";
-import { Box, Typography, Container } from "@mui/material";
+import { Box, Typography, Container, MenuItem, InputLabel, Select, FormControl, SelectChangeEvent } from "@mui/material";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import LayoutWithSidebar from "../../../components/sideMenu";
 import { useEffect, useState } from "react";
@@ -36,10 +36,11 @@ const getUserNameFromJWT = () => {
     return "Token não encontrado";
 };
 
-const fetchData = async () => {
+const fetchData = async (month?: string) => {
+    const query = month ? `?month=${month}` : `?month=`;
     const [expenses, income] = await Promise.all([
-        fetcher('/expense'), // Endpoint para despesas
-        fetcher('/revenue'),  // Endpoint para receitas
+        fetcher(`/expense${query}`), // Endpoint para despesas com query
+        fetcher(`/revenue${query}`), // Endpoint para receitas com query
     ]);
     return { expenses, income };
 };
@@ -88,7 +89,12 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }: Custom
 
 
 const Dashboard = () => {
-    const { data, error } = useSWR<DashboardData>('dashboardData', fetchData, { revalidateOnFocus: false });
+    const [selectedMonth, setSelectedMonth] = useState("");
+    const { data, error } = useSWR<DashboardData>(
+        ['dashboardData', selectedMonth],
+        () => fetchData(selectedMonth),
+        { revalidateOnFocus: false }
+    );
     const [expenseData, setExpenseData] = useState<PayloadItem[]>([]);
     const [incomeData, setIncomeData] = useState<PayloadItem[]>([]);
     const [totalExpenses, setTotalExpenses] = useState(0);
@@ -114,6 +120,11 @@ const Dashboard = () => {
             setTotalIncome(income.reduce((sum, item) => sum + item.value, 0));
         }
     }, [data]);
+
+    const handleMonthChange = (event: SelectChangeEvent) => {
+        setSelectedMonth(event.target.value);
+        console.log("Mês selecionado:", event.target.value);
+    };
     
 
     if (error) {
@@ -170,6 +181,29 @@ const Dashboard = () => {
                             Olá, {userName}!
                         </Typography>
                     </Box>
+
+                    <FormControl fullWidth>
+                        <InputLabel id="month-select-label">Mês</InputLabel>
+                        <Select
+                            labelId="month-select-label"
+                            value={selectedMonth}
+                            onChange={handleMonthChange}
+                        >
+                            <MenuItem value="">Todos os meses</MenuItem>
+                            <MenuItem value="01">Janeiro</MenuItem>
+                            <MenuItem value="02">Fevereiro</MenuItem>
+                            <MenuItem value="03">Março</MenuItem>
+                            <MenuItem value="04">Abril</MenuItem>
+                            <MenuItem value="05">Maio</MenuItem>
+                            <MenuItem value="06">Junho</MenuItem>
+                            <MenuItem value="07">Julho</MenuItem>
+                            <MenuItem value="08">Agosto</MenuItem>
+                            <MenuItem value="09">Setembro</MenuItem>
+                            <MenuItem value="10">Outubro</MenuItem>
+                            <MenuItem value="11">Novembro</MenuItem>
+                            <MenuItem value="12">Dezembro</MenuItem>
+                        </Select>
+                    </FormControl>
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
                         {/* Gráfico de Receitas */}
