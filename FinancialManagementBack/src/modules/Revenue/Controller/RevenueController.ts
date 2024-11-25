@@ -34,11 +34,12 @@ export class RevenueController {
     // Método no Controller
     async getAll(req: Request, res: Response) {
         try {
+            const userId = req.user.id;
             const { month } = req.query;
 
             // Se mês for fornecido, chama a função findAll com o mês
             // Caso contrário, chama a função findAll sem mês (sem filtro)
-            const allRevenues = await service.findAll(month ? String(month) : undefined);
+            const allRevenues = await service.findAll(userId, month ? String(month) : undefined);
             res.status(200).send(allRevenues);
         } catch (error) {
             const typedError = error as Prisma.PrismaClientKnownRequestError;

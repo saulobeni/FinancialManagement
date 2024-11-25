@@ -9,11 +9,11 @@ export class RevenueService {
         return repository.create(data);
     }
 
-    async findAll(month?: string) {
+    async findAll(userId: number, month?: string) {
         if (month) {
-            return repository.findAllByMonth(month);
+            return repository.findAllByMonth(month, userId);
         } else {
-            return repository.findAll();
+            return repository.findAll(userId);
         }
     }
 

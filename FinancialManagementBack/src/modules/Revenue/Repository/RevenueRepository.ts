@@ -11,11 +11,15 @@ export class RevenueRepository {
         });
     }
 
-    async findAll() {
-        return prisma.revenue.findMany({});
+    async findAll(userId: number) {
+        return prisma.revenue.findMany({
+            where: {
+                user_id: userId
+            }
+        });
     }
 
-    async findAllByMonth(month: string) {
+    async findAllByMonth(month: string, userId: number) {
         const currentYear = new Date().getFullYear();
 
         const monthNumber = Number(month);
@@ -26,6 +30,7 @@ export class RevenueRepository {
                     gte: new Date(currentYear, monthNumber - 1, 1),
                     lt: new Date(currentYear, monthNumber, 1),
                 },
+                user_id: userId
             },
         });
     }

@@ -34,9 +34,10 @@ export class ExpenseController {
 
     async getAll(req: Request, res: Response) {
         try {
+            const userId = req.user.id;
             const { month } = req.query;
 
-            const allExpenses = await service.findAll(month ? String(month) : undefined);
+            const allExpenses = await service.findAll(userId, month ? String(month) : undefined);
             res.status(200).send(allExpenses);
         } catch (error) {
             const typedError = error as Prisma.PrismaClientKnownRequestError;
